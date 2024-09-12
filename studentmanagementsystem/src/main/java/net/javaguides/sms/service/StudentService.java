@@ -9,5 +9,7 @@ public interface StudentService {
 	void saveStudent(Student student);  // Add this method
 	Student getStudentById(Long id);
 	void updateStudent(Student student);
+	void deleteStudentById(Long id);
+	Student getStudentByEmail(String email);
 	
 }

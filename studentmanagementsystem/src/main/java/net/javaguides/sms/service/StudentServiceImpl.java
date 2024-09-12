@@ -38,5 +38,16 @@ public class StudentServiceImpl implements StudentService{
 		// TODO Auto-generated method stub
 		studentRepository.save(student);
 	}
+	  @Override
+	    public void deleteStudentById(Long id) {
+	        studentRepository.deleteById(id); // Use repository to delete by ID
+	    }
 
+	@Override
+	public Student getStudentByEmail(String email) {
+		// TODO Auto-generated method stub
+		return studentRepository.findByEmail(email);
+	}
+
+	
 }

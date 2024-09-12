@@ -54,22 +54,62 @@ public class StudentController {
 	        return "students"; // This is the view to display the student list
 	    }
 	    
+	 // Show the form to enter email before updating
 	    @GetMapping("/students/edit/{id}")
-
-	    public String showUpdateForm(@PathVariable("id") Long id,Model model) {
-			Student existingStudent =studentService.getStudentById(id);
-	    	model.addAttribute("student",existingStudent);
-	    	return "update_student";
+	    public String showEmailForm(@PathVariable("id") Long id, Model model) {
+	        model.addAttribute("id", id);
+	        return "email_input"; // Email input page
 	    }
-	    
-	    
+
+	    // Check the email and redirect to the update form if valid
+	    @PostMapping("/students/checkEmail/{id}")
+	    public String checkEmail(@PathVariable("id") Long id,
+	                             @RequestParam("email") String email,
+	                             Model model) {
+	        // Check if the email exists in the database
+	        Student existingStudentByEmail = studentService.getStudentByEmail(email);
+	        
+	        // If no student with this email, return to email input with error
+	        if (existingStudentByEmail == null) {
+	            model.addAttribute("errorMessage", "Email does not exist!");
+	            model.addAttribute("id", id);
+	            return "email_input"; // Return to the email input page with error
+	        }
+
+	        // If email is valid, load the student data and proceed to the update form
+	        Student existingStudent = studentService.getStudentById(id);
+	        model.addAttribute("student", existingStudent);
+	        return "update_student"; // Proceed to the update form
+	    }
+
+	    // Handle the actual update
 	    @PostMapping("/students/edit/{id}")
 	    public String updateStudent(@PathVariable("id") Long id,
-	    		                    @ModelAttribute("student") Student student) {
-	    	
-	    	student.setId(id);
-	    	studentService.updateStudent(student);
-	    	return "redirect:/studcrud";
-	    	
+	                                @ModelAttribute("student") Student student) {
+	        student.setId(id);
+	        studentService.updateStudent(student);
+	        return "redirect:/studcrud";  // Redirect after successful update
+	    }
+	    
+	    @GetMapping("students/delete/{id}")
+	    public String deleteStudentById(@PathVariable ("id") Long id,Model model) {
+	        // Check if student exists before attempting to delete
+	        
+	    Student student= studentService.getStudentById(id);  // Delete student from the database
+	        model.addAttribute("student",student);
+	        return "confirm_delete";  // Redirect back to student list after deletion
+	    }
+	    @PostMapping("/students/delete/{id}")
+	    public String confirmDeleteStudent(@PathVariable("id") Long id, @RequestParam("email") String email) {
+	        // Fetch the student by ID
+	        Student student = studentService.getStudentById(id);
+	        
+	        // Check if the email provided matches the student's email
+	        if (student != null && student.getEmail().equals(email)) {
+	            studentService.deleteStudentById(id);  // Delete the student if the email matches
+	            return "redirect:/studcrud";  // Redirect to the student list after successful deletion
+	        } else {
+	            return "error";  // Redirect to an error page or show a message if email doesn't match
+	        }
 	    }
 	   	}
